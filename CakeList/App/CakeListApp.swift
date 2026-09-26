@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct CakeListApp: App {
+    private let viewModel = CakeListViewModel(
+        repository: RemoteCakeRepository(
+            apiClient: DefaultAPIClient(baseURL: APIConfiguration.baseURL)
+        )
+    )
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CakeListView(viewModel: viewModel)
         }
     }
 }
