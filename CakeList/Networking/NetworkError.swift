@@ -15,6 +15,7 @@ nonisolated enum NetworkError: Error {
     case decodingFailed(any Error)
 }
 
+// TODO: Move user-facing messages to a String Catalog once localisation is needed.
 nonisolated extension NetworkError: LocalizedError {
     var errorDescription: String? {
         switch self {
