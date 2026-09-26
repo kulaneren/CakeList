@@ -54,11 +54,16 @@ struct CakeListView: View {
                 await viewModel.load()
             }
         case .failed(let message):
-            ContentUnavailableView(
-                "Couldn't load cakes",
-                systemImage: "wifi.exclamationmark",
-                description: Text(message)
-            )
+            ContentUnavailableView {
+                Label("Couldn't load cakes", systemImage: "wifi.exclamationmark")
+            } description: {
+                Text(message)
+            } actions: {
+                Button("Retry") {
+                    Task { await viewModel.load() }
+                }
+                .buttonStyle(.borderedProminent)
+            }
         }
     }
 
