@@ -41,13 +41,14 @@ struct CakeListView: View {
         case .idle, .loading:
             ProgressView("Loading cakes…")
         case .loaded(let cakes):
-            List(cakes, id: \.self) { cake in
+            List(Array(cakes.enumerated()), id: \.element) { index, cake in
                 Button {
                     selectedCake = cake
                 } label: {
                     CakeRow(cake: cake)
                 }
                 .buttonStyle(.plain)
+                .appearTransition(index: index)
             }
             .listStyle(.plain)
             .refreshable {
