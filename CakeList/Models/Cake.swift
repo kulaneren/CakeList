@@ -31,3 +31,10 @@ nonisolated extension Cake: Decodable {
             .flatMap(URL.init(string:))
     }
 }
+
+nonisolated extension Sequence where Element == Cake {
+    /// Orders cakes by title using a locale-aware, case-insensitive comparison.
+    func sortedByTitle() -> [Cake] {
+        sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+    }
+}

@@ -33,3 +33,14 @@ struct CakeTests {
         #expect(cake.imageURL == nil)
     }
 }
+
+struct CakeSortingTests {
+
+    @Test func sortsByTitleIgnoringCase() {
+        let cakes = ["victoria sponge", "Banana Cake", "Carrot Cake"].map {
+            Cake(title: $0, description: "", imageURL: nil)
+        }
+
+        #expect(cakes.sortedByTitle().map(\.title) == ["Banana Cake", "Carrot Cake", "victoria sponge"])
+    }
+}
