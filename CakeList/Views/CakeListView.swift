@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CakeListView: View {
     @State private var viewModel: CakeListViewModel
+    @State private var selectedCake: Cake?
 
     init(viewModel: CakeListViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -18,6 +19,10 @@ struct CakeListView: View {
         NavigationStack {
             content
                 .navigationTitle("Cakes")
+                .alert(selectedCake?.title ?? "", isPresented: isPresentingDescription, presenting: selectedCake) { _ in
+                } message: { cake in
+                    Text(cake.description)
+                }
         }
         .task {
             await viewModel.load()
@@ -30,8 +35,15 @@ struct CakeListView: View {
         case .idle, .loading:
             ProgressView("Loading cakes…")
         case .loaded(let cakes):
-            List(cakes, id: \.self, rowContent: CakeRow.init)
-                .listStyle(.plain)
+            List(cakes, id: \.self) { cake in
+                Button {
+                    selectedCake = cake
+                } label: {
+                    CakeRow(cake: cake)
+                }
+                .buttonStyle(.plain)
+            }
+            .listStyle(.plain)
         case .failed(let message):
             ContentUnavailableView(
                 "Couldn't load cakes",
@@ -39,6 +51,13 @@ struct CakeListView: View {
                 description: Text(message)
             )
         }
+    }
+
+    private var isPresentingDescription: Binding<Bool> {
+        Binding(
+            get: { selectedCake != nil },
+            set: { if !$0 { selectedCake = nil } }
+        )
     }
 }
 
