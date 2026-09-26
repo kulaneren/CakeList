@@ -19,6 +19,12 @@ struct CakeListView: View {
         NavigationStack {
             content
                 .navigationTitle("Cakes")
+                .toolbar {
+                    Button("Refresh", systemImage: "arrow.clockwise") {
+                        Task { await viewModel.load() }
+                    }
+                    .disabled(viewModel.state == .loading)
+                }
                 .alert(selectedCake?.title ?? "", isPresented: isPresentingDescription, presenting: selectedCake) { _ in
                 } message: { cake in
                     Text(cake.description)
@@ -44,6 +50,9 @@ struct CakeListView: View {
                 .buttonStyle(.plain)
             }
             .listStyle(.plain)
+            .refreshable {
+                await viewModel.load()
+            }
         case .failed(let message):
             ContentUnavailableView(
                 "Couldn't load cakes",
