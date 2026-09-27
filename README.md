@@ -60,10 +60,15 @@ Swift Testing, fast and isolated; no network or UI tests. Each layer is tested a
 - The endpoint currently returns no duplicates; the dedupe rule (exact match on all fields) is still applied and unit tested.
 - The endpoint serves `text/plain`, so the client does not validate the content type.
 - If a refresh fails, the error view replaces the list. Keeping stale content visible is a noted TODO.
-- `AsyncImage` is used deliberately to avoid dependencies; it has no disk cache or downsampling.
+- `AsyncImage` is used deliberately to avoid dependencies; it has no disk cache or downsampling, and it never retries a failed load on its own. Reloading the list gives thumbnails a fresh identity so images that failed while offline are requested again (found while testing on a device with the network switched off).
+- Because the endpoint sends `Cache-Control: max-age=300`, `URLSession`'s default cache can serve the list offline for a few minutes. This is incidental rather than designed; a production app would choose an explicit cache policy.
 
 Remaining work is marked with `TODO:` comments in the code.
 
 ## AI disclosure
 
-This exercise was built with AI assistance (Claude Code) used as a pair-programming tool. The scope, stack, architecture and step-by-step plan were set by the author; the assistant drafted code, tests and documentation under that direction, and every step was reviewed, built, unit tested and run on the simulator before being committed.
+This exercise was built with AI assistance (Claude Code) used as a pair-programming tool.
+
+- The author set the scope, stack (SwiftUI, Swift Concurrency, no third-party code, iOS 17), architecture, layering and the step-by-step commit plan, and reviewed every change before it was committed.
+- The assistant drafted code, unit tests, commit messages and inline documentation under that direction.
+- Each step was built and unit tested, and the UI was run on the simulator. The author also tested on a physical device, including offline and orientation scenarios, which surfaced the thumbnail retry issue fixed in the final commit.
