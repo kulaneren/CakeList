@@ -10,6 +10,7 @@ import SwiftUI
 struct CakeListView: View {
     @State private var viewModel: CakeListViewModel
     @State private var selectedCake: Cake?
+    @State private var imageLoadID = UUID()
 
     init(viewModel: CakeListViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -21,7 +22,7 @@ struct CakeListView: View {
                 .navigationTitle("Cakes")
                 .toolbar {
                     Button("Refresh", systemImage: "arrow.clockwise") {
-                        Task { await viewModel.load() }
+                        Task { await reload() }
                     }
                     .disabled(viewModel.state == .loading)
                 }
@@ -45,14 +46,14 @@ struct CakeListView: View {
                 Button {
                     selectedCake = cake
                 } label: {
-                    CakeRow(cake: cake)
+                    CakeRow(cake: cake, imageLoadID: imageLoadID)
                 }
                 .buttonStyle(.plain)
                 .appearTransition(index: index)
             }
             .listStyle(.plain)
             .refreshable {
-                await viewModel.load()
+                await reload()
             }
         case .failed(let message):
             ContentUnavailableView {
@@ -61,11 +62,17 @@ struct CakeListView: View {
                 Text(message)
             } actions: {
                 Button("Retry") {
-                    Task { await viewModel.load() }
+                    Task { await reload() }
                 }
                 .buttonStyle(.borderedProminent)
             }
         }
+    }
+
+    /// Reloads the list and gives thumbnails a new identity so images that failed earlier are requested again.
+    private func reload() async {
+        await viewModel.load()
+        imageLoadID = UUID()
     }
 
     private var isPresentingDescription: Binding<Bool> {

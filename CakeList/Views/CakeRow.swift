@@ -9,10 +9,13 @@ import SwiftUI
 
 struct CakeRow: View {
     let cake: Cake
+    /// Changing this re-creates the thumbnail, since `AsyncImage` never retries a failed load on its own.
+    let imageLoadID: UUID
 
     var body: some View {
         HStack(spacing: 12) {
             CakeThumbnail(url: cake.imageURL)
+                .id(imageLoadID)
             Text(cake.title)
         }
         .padding(.vertical, 4)
@@ -44,6 +47,8 @@ private struct CakeThumbnail: View {
 }
 
 #Preview {
-    List(Cake.samples, id: \.self, rowContent: CakeRow.init)
-        .listStyle(.plain)
+    List(Cake.samples, id: \.self) { cake in
+        CakeRow(cake: cake, imageLoadID: UUID())
+    }
+    .listStyle(.plain)
 }
